@@ -5,10 +5,29 @@ from rich.table import Table
 
 from netwatch.config import load_hosts
 from netwatch.ping import ping_host
+from netwatch.ports import check_tcp_port
 
 console = Console()
 
 CONFIG_PATH = Path("config/hosts.json")
+
+def format_ports(host: str, ports: list[int]) -> str:
+    """Check configured TCP ports and format their status."""
+
+    if not ports:
+        return "—"
+
+    results = []
+
+    for port in ports:
+        result = check_tcp_port(host, port)
+
+        if result.open:
+            results.append(f"[green]{port} ✓[/green]")
+        else:
+            results.append(f"[red]{port} ✗[/red]")
+
+    return ", ".join(results)
 
 def main() -> None:
     """Run the NetWatch application."""
@@ -32,6 +51,7 @@ def main() -> None:
     table.add_column("Host")
     table.add_column("Status")
     table.add_column("Latency")
+    table.add_column("TCP Ports")
     
     # Check each host and add ONE row to the existing table
     for host_config in hosts:
@@ -48,7 +68,11 @@ def main() -> None:
         else:
             status = "[red]OFFLINE[/red]"
             latency = "--"
-            
+           
+        ports = format_ports(
+            host_config.host,
+            host_config.ports,
+        ) 
 
             
         table.add_row(
@@ -56,6 +80,7 @@ def main() -> None:
             result.host,
             status,
             latency,
+            ports,
         )
     # Print the completed table AFTER the loop
     console.print(table)

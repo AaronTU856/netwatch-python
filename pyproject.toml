@@ -1,0 +1,43 @@
+[project]
+name = "netwatch-python"
+version = "0.1.0"
+description = "A lightweight Python network monitoring and diagnostics toolkit."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+authors = [
+    {name = "Aaron Baggot"}
+]
+
+dependencies = [
+    "rich"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff"
+]
+
+[project.scripts]
+netwatch = "netwatch.main:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP"
+]
+

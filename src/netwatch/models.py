@@ -9,4 +9,10 @@ class HostConfig:
     host: str
     ports: list[int] = field(default_factory=list)
     
+@dataclass
+class NetWatchConfig:
+    """"Application configuration for NetWatch"""
     
+    refresh_interval: int
+    hosts: list[HostConfig]
+        

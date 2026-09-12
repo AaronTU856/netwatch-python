@@ -1,10 +1,10 @@
 import json
 from pathlib import Path
 
-from netwatch.models import HostConfig
+from netwatch.models import HostConfig, NetWatchConfig
 
 
-def load_hosts(config_path: str | Path) -> list[HostConfig]:
+def load_config(config_path: str | Path) -> NetWatchConfig:
     """Load host configuration from a json file"""
     
     path = Path(config_path)
@@ -17,6 +17,11 @@ def load_hosts(config_path: str | Path) -> list[HostConfig]:
         
     if "hosts" not in data:
         raise ValueError("Configuration must contain 'hosts' section")
+    
+    refresh_interval = data.get("refresh_interval", 10)
+    
+    if not isinstance(refresh_interval, int) or refresh_interval < 1:
+        raise ValueError("refresh_interval must be a possitive integer")
     
     hosts = []
     
@@ -35,5 +40,8 @@ def load_hosts(config_path: str | Path) -> list[HostConfig]:
             )
         )
         
-    return hosts
+    return NetWatchConfig(
+        refresh_interval=refresh_interval,
+        hosts=hosts,
+    )
             

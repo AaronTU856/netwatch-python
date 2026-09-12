@@ -1,4 +1,5 @@
 {
+  "refresh_interval": 10,
   "hosts": [
     {
       "name": "Local Router",

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from netwatch.config import load_hosts
+from netwatch.config import load_config
 
 
 def test_load_hosts_from_valid_config(tmp_path):
@@ -23,19 +23,19 @@ def test_load_hosts_from_valid_config(tmp_path):
         encoding="utf-8",
     )
 
-    hosts = load_hosts(config_file)
+    config = load_config(config_file)
 
-    assert len(hosts) == 1
-    assert hosts[0].name == "Test Server"
-    assert hosts[0].host == "127.0.0.1"
-    assert hosts[0].ports == [80, 443]
+    assert len(config.hosts) == 1
+    assert config.hosts[0].name == "Test Server"
+    assert config.hosts[0].host == "127.0.0.1"
+    assert config.hosts[0].ports == [80, 443]
 
 
 def test_load_hosts_missing_file(tmp_path):
     missing_file = tmp_path / "missing.json"
 
     with pytest.raises(FileNotFoundError):
-        load_hosts(missing_file)
+        load_config(missing_file)
 
 
 def test_load_hosts_missing_hosts_section(tmp_path):
@@ -47,7 +47,7 @@ def test_load_hosts_missing_hosts_section(tmp_path):
     )
 
     with pytest.raises(ValueError):
-        load_hosts(config_file)
+        load_config(config_file)
 
 
 def test_load_hosts_missing_required_field(tmp_path):
@@ -68,4 +68,4 @@ def test_load_hosts_missing_required_field(tmp_path):
     )
 
     with pytest.raises(ValueError):
-        load_hosts(config_file)
+        load_config(config_file)

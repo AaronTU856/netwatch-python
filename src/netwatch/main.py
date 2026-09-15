@@ -4,9 +4,11 @@ from pathlib import Path
 from rich.console import Console
 
 from netwatch.config import load_config
+from netwatch.logger import setup_logger
 from netwatch.monitor import build_status_table, get_timestamp
 
 console = Console()
+logger = setup_logger()
 
 CONFIG_PATH = Path("config/hosts.json")
 
@@ -51,10 +53,19 @@ def main() -> None:
             
             time.sleep(config.refresh_interval)
         
+            logger.info(
+            "netwatch_started refresh_interval=%s host_count=%s",
+            config.refresh_interval,
+            len(config.hosts),
+        )
+    
     except KeyboardInterrupt:
+        logger.info("netwatch_stopped")
+        
         console.print()
         console.print()
         console.print("[yellow]NetWatch stopped.[/yellow]")
+        
     
     
         

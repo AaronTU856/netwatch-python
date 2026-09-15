@@ -2,9 +2,12 @@ from datetime import datetime
 
 from rich.table import Table
 
+from netwatch.logger import setup_logger
 from netwatch.models import HostConfig
 from netwatch.ping import ping_host
 from netwatch.ports import check_tcp_port
+
+logger = setup_logger()
 
 
 def format_ports(host: str, ports: list[int]) -> str:
@@ -19,11 +22,20 @@ def format_ports(host: str, ports: list[int]) -> str:
         result = check_tcp_port(host, port)
         
         if result.open:
-            results.append(f"[green]{port} ✅ [/green]")
-            
+            logger.info(
+                "tcp_check host=%s port=%s status=OPEN",
+                host,
+                port,
+            )
+            results.append(f"[green]{port} ✅[/green]")
         else:
-            results.append(f"[red]{port} ❌ [/red]")
-    
+            logger.warning(
+                "tcp_check host=%s port=%s status=CLOSED",
+                host,
+                port,
+            )
+            results.append(f"[red]{port} ❌[/red]")
+
     return ", ".join(results)
 
 def build_status_table(hosts: list[HostConfig]) -> Table:
@@ -49,9 +61,24 @@ def build_status_table(hosts: list[HostConfig]) -> Table:
                 else "N/A"
                 
             )
+            
+            logger.info(
+                "host_check name=%s host=%s status=ONLINE latency_ms=%s",
+                host_config.name,
+                result.host,
+                result.latency_ms,
+            )
+            
         else:
             status = "[red]OFFLINE[/red]"
             latency = "--"
+            
+            logger.warning(
+                "host_check name=%s host=%s status=OFFLINE",
+                host_config.name,
+                result.host,
+            )
+            
             
         ports = format_ports(
             host_config.host,
@@ -67,6 +94,8 @@ def build_status_table(hosts: list[HostConfig]) -> Table:
         )
         
     return table
+
+
 def get_timestamp() -> str:
     """Return the current local timestamp."""
     

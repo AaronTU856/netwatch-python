@@ -44,4 +44,6 @@ def load_config(config_path: str | Path) -> NetWatchConfig:
         refresh_interval=refresh_interval,
         hosts=hosts,
     )
+    
+    
             

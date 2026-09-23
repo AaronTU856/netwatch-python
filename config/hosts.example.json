@@ -12,7 +12,7 @@
       "ports": [53]
     },
     {
-      "name": "Cloudflare DNS",
+      "name": "Cloudfare DNS",
       "host": "1.1.1.1",
       "ports": [53, 443]
     }

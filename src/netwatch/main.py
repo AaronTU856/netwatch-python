@@ -1,11 +1,14 @@
+import argparse
 import time
 from pathlib import Path
 
 from rich.console import Console
 
 from netwatch.config import load_config
+from netwatch.database import init_database
 from netwatch.logger import setup_logger
 from netwatch.monitor import build_status_table, get_timestamp
+from netwatch.statistics import build_statistics_table
 
 console = Console()
 logger = setup_logger()
@@ -13,14 +16,30 @@ logger = setup_logger()
 CONFIG_PATH = Path("config/hosts.json")
 
 
+
 def main() -> None:
     """Run the NetWatch continueous monitoring application."""
+    
+    args = parse_arguments()
+    
     
     try:
         config = load_config(CONFIG_PATH)
     except (FileNotFoundError, ValueError) as error:
         console.print(f"[red]Configuration error:[/red] {error}")
         return
+    
+    init_database()
+    
+    if args.stats:
+        console.print()
+        console.print(build_statistics_table())
+        return
+    logger.info(
+        "netwatch_started refresh_interval=%s host_count=%s",
+        config.refresh_interval,
+        len(config.hosts),
+    )
     
     try:
         while True:
@@ -66,9 +85,22 @@ def main() -> None:
         console.print()
         console.print("[yellow]NetWatch stopped.[/yellow]")
         
+def parse_arguments() -> argparse.Namespace:
+    """Parse command-line arguments."""
+
+    parser = argparse.ArgumentParser(
+        description="NetWatch network monitoring toolkit"
+    )
+
+    parser.add_argument(
+        "--stats",
+        action="store_true",
+        help="Display historical monitoring statistics",
+    )
+
+    return parser.parse_args()
+
     
-    
-        
 if __name__ == "__main__":
     main()
 

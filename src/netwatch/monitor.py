@@ -2,6 +2,7 @@ from datetime import datetime
 
 from rich.table import Table
 
+from netwatch.database import save_host_check
 from netwatch.logger import setup_logger
 from netwatch.models import HostConfig
 from netwatch.ping import ping_host
@@ -51,40 +52,45 @@ def build_status_table(hosts: list[HostConfig]) -> Table:
     
     for host_config in hosts:
         result = ping_host(host_config.host)
-        
+        checked_at = get_timestamp()
+
         if result.reachable:
             status = "[green]ONLINE[/green]"
-            
+
             latency = (
                 f"{result.latency_ms:.2f} ms"
                 if result.latency_ms is not None
                 else "N/A"
-                
             )
-            
+
             logger.info(
                 "host_check name=%s host=%s status=ONLINE latency_ms=%s",
                 host_config.name,
                 result.host,
                 result.latency_ms,
             )
-            
         else:
             status = "[red]OFFLINE[/red]"
             latency = "--"
-            
+
             logger.warning(
                 "host_check name=%s host=%s status=OFFLINE",
                 host_config.name,
                 result.host,
             )
-            
-            
+
+        save_host_check(
+            checked_at=checked_at,
+            name=host_config.name,
+            host=result.host,
+            reachable=result.reachable,
+            latency_ms=result.latency_ms,
+        )
+
         ports = format_ports(
             host_config.host,
             host_config.ports,
         )
-        
         table.add_row(
             host_config.name,
             result.host,

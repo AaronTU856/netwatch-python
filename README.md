@@ -142,11 +142,12 @@ tests/                   Unit tests
 
 ## Screenshots
 
-### Continuous monitoring
+### Historical statistics
 
 ![NetWatch monitoring dashboard](docs/screenshots/interval.png)
 
-### Historical statistics
+
+### Continuous monitoring
 
 ![NetWatch statistics](docs/screenshots/stats.png)
 

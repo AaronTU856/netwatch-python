@@ -13,9 +13,6 @@ from netwatch.statistics import build_statistics_table
 console = Console()
 logger = setup_logger()
 
-CONFIG_PATH = Path("config/hosts.json")
-
-
 
 def main() -> None:
     """Run the NetWatch continueous monitoring application."""
@@ -24,7 +21,7 @@ def main() -> None:
     
     
     try:
-        config = load_config(CONFIG_PATH)
+        config = load_config(args.config)
     except (FileNotFoundError, ValueError) as error:
         console.print(f"[red]Configuration error:[/red] {error}")
         return

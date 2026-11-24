@@ -140,6 +140,17 @@ src/netwatch/            Application package
 tests/                   Unit tests
 ```
 
+## Screenshots
+
+### Continuous monitoring
+
+![NetWatch monitoring dashboard](docs/screenshots/interval.png)
+
+### Historical statistics
+
+![NetWatch statistics](docs/screenshots/stats.png)
+
+
 ## Future enhancements
 
 The following are not currently implemented:

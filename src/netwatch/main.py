@@ -29,6 +29,14 @@ def main() -> None:
         console.print(f"[red]Configuration error:[/red] {error}")
         return
     
+    if args.interval is not None:
+        config.refresh_interval = args.interval
+        if args.interval <= 0:
+            console.print("[red]Error: Refresh interval must be a positive integer.[/red]")
+            return
+        
+        config.refresh_interval = args.interval
+        
     init_database()
     
     if args.stats:
@@ -64,6 +72,9 @@ def main() -> None:
             
             console.print(table)
             
+            if args.once:
+                return
+            
             console.print()
             console.print(
                 "[dim]Press Ctrl + C to stop NetWatch[/dim]"
@@ -97,6 +108,26 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="Display historical monitoring statistics",
     )
+    
+    parser.add_argument(
+            "--once",
+            action="store_true",
+            help="Run one monitoring scan and exit",
+        )
+    
+    parser.add_argument(
+            "--interval",
+            type=int,
+            help="Override the configured refresh interval in seconds",
+        )
+    
+    parser.add_argument(
+            "--config",
+            type=Path,
+            default=Path("config/hosts.json"),
+            help="Path to the configuration file",
+        )
+    
 
     return parser.parse_args()
 

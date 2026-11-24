@@ -1,154 +1,161 @@
 # NetWatch Python
 
-A lightweight network monitoring and diagnostics toolkit built with Python.
+A lightweight command-line network monitoring and diagnostics toolkit built with Python.
 
-NetWatch is a personal portfolio and learning project designed to explore practical networking, monitoring, automation and cybersecurity concepts using Python.
+NetWatch monitors configured hosts with ICMP ping checks, tests configured TCP ports, presents the current results in a Rich terminal table, and records host availability and latency history in SQLite.
 
-## Project Goals
+This is a portfolio and learning project focused on practical Python, networking, monitoring, logging, testing, and automation.
 
-NetWatch will provide tools for monitoring hosts and network services while presenting results through an easy-to-use command-line interface.
+## Features
 
-Planned capabilities include:
-
-- Host availability monitoring
-- ICMP/ping latency checks
+- Continuous monitoring of configured hosts
+- ICMP ping availability and latency checks
 - TCP port availability checks
-- Configurable network hosts
-- Structured logging
-- Historical monitoring data
-- Terminal dashboard
-- Network statistics
-- Alerting
-- REST API
-- Web dashboard
-- Docker deployment
+- JSON-based host configuration
+- Rich terminal status table
+- One-time scan mode
+- Configurable refresh interval
+- Rotating application logs
+- SQLite history for host availability and latency
+- Historical uptime, failure-count, and latency statistics
+- Automated linting and tests with GitHub Actions
 
-## Current Status
+## Requirements
 
-**Version: 0.1.0 — Initial Development**
+- Python 3.12 or later
+- Network access to the hosts you choose to monitor
 
-The project structure and development environment are currently being established.
-
-## Planned Architecture
-
-```text
-Network Hosts
-      |
-      v
-Monitoring Engine
-      |
-      +---- Ping checks
-      |
-      +---- TCP checks
-      |
-      +---- DNS checks
-      |
-      v
-Result Processing
-      |
-      +---- Terminal UI
-      +---- Logging
-      +---- Database
-      |
-      v
-Future REST API / Web Dashboard
-```
-
-## Technology
-
-- Python
-- Rich
-- Pytest
-
-Future technologies may include:
-
-- FastAPI
-- SQLite/PostgreSQL
-- Docker
-- GitHub Actions
-- Raspberry Pi
-- Cloud deployment
+Use NetWatch only on systems and networks that you own or are explicitly authorised to administer.
 
 ## Installation
 
-Clone the repository:
+Clone the repository and create a virtual environment:
 
 ```bash
 git clone https://github.com/AaronTU856/netwatch-python.git
 cd netwatch-python
-```
-
-Create a virtual environment:
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies:
+Install the project and its development dependencies:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+python -m pip install -e .
 ```
 
-Run NetWatch:
+Create your local configuration from the included example:
 
 ```bash
-python src/netwatch/main.py
+cp config/hosts.example.json config/hosts.json
 ```
 
-## Testing
+`config/hosts.json` is intentionally ignored by Git so that local addresses and monitoring choices are not committed.
 
-Run the test suite with:
+## Configuration
+
+NetWatch reads `config/hosts.json`. It must contain a positive integer `refresh_interval` and a list of hosts. Each host needs a `name` and `host`; `ports` is optional.
+
+```json
+{
+  "refresh_interval": 10,
+  "hosts": [
+    {
+      "name": "Local Router",
+      "host": "192.168.1.1",
+      "ports": [80, 443]
+    },
+    {
+      "name": "Cloudflare DNS",
+      "host": "1.1.1.1",
+      "ports": [53, 443]
+    }
+  ]
+}
+```
+
+## Usage
+
+Start continuous monitoring:
+
+```bash
+netwatch
+```
+
+Run one scan and exit:
+
+```bash
+netwatch --once
+```
+
+Override the configured refresh interval for the current run:
+
+```bash
+netwatch --interval 30
+```
+
+Display the statistics collected in `data/netwatch.db`:
+
+```bash
+netwatch --stats
+```
+
+Use `Ctrl+C` to stop continuous monitoring.
+
+### Runtime data
+
+- Logs are written to `logs/netwatch.log` and rotate at 1 MB, retaining up to three backup files.
+- Host check results are stored in `data/netwatch.db`.
+- The statistics view groups results by configured host and shows checks, failures, uptime, average/minimum/maximum latency, and the latest check time.
+
+## Testing and quality checks
+
+Run the test suite:
 
 ```bash
 pytest
 ```
 
-## Roadmap
+Run the linter:
 
-### v0.1
-- Initial project structure
-- Host configuration
-- Ping monitoring
-- TCP port checks
-- Terminal output
+```bash
+ruff check src tests
+```
 
-### v0.2
-- Structured logging
-- Continuous monitoring
-- Improved terminal dashboard
+GitHub Actions runs both commands for pushes and pull requests targeting `main`.
 
-### v0.3
-- SQLite monitoring history
-- Statistics and reporting
+## Project structure
 
-### v0.4
-- FastAPI REST API
+```text
+config/                  Local host configuration and committed example
+src/netwatch/            Application package
+  config.py              JSON configuration loading and validation
+  ping.py                Cross-platform ping execution and latency parsing
+  ports.py               TCP connectivity checks
+  monitor.py             Status table, logging, and result persistence
+  database.py            SQLite setup, storage, and aggregate queries
+  statistics.py          Historical statistics table
+  main.py                Command-line entry point
+tests/                   Unit tests
+```
 
-### v0.5
-- Web dashboard
+## Future enhancements
 
-### v1.0
-- Stable monitoring application
-- Documentation
-- Docker support
-- Automated tests and CI
+The following are not currently implemented:
 
-## Security
-
-NetWatch is intended for monitoring systems and networks that the user owns or is explicitly authorised to administer.
-
-No credentials, local network configuration or private environment files should be committed to this repository.
-
-## Author
-
-**Aaron Baggot**
-
-Computer Science graduate specialising in Security and Forensics.
-
-GitHub: [AaronTU856](https://github.com/AaronTU856)
+- Alert notifications
+- DNS-specific checks
+- REST API and web dashboard
+- Containerised deployment
+- Authentication, multi-user access, and remote configuration management
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
+
+## Author
+
+Aaron Baggot — Computer Science graduate specialising in Security and Forensics.
+
+GitHub: [AaronTU856](https://github.com/AaronTU856)
